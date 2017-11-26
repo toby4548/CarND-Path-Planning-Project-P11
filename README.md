@@ -4,7 +4,7 @@ Self-Driving Car Engineer Nanodegree Program
 ### Reflection
 The overall process of behavior planning is shown as the following figure.
 
-![image](image/behavior_planning_preocess.png)
+![image](image/behavior_planning_process.png)
 
 The prediction is done with the prediction function in [line 169 to 199 in main.cpp](./src/main.cpp#L169) which take the information from sensor fusion as input. The future position of the other vehicle is then estimated using the speed. We compare the position of the other vehicle with the ego vehicle's position to check if there is car in front, at left or at right of us. Then we pass these information to the behavior planner.
 
