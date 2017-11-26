@@ -165,6 +165,64 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 }
 
+//Prediction
+void Prediction(int lane, double car_s,int prev_size, float d, double vx, double vy, double check_car_s, bool& other_car_front, bool& other_car_left, bool& other_car_right)
+{	
+  int other_car_lane = -1;
+
+  if (d > 0 && d<=4) {
+    other_car_lane = 0;
+  } else if (d > 4 && d <=8) { 
+    other_car_lane = 1;
+  } else if (d > 8 && d <= 12) {
+    other_car_lane = 2;
+  } else {
+  
+  }
+              
+  //predict other cars position using car speed
+  double check_speed = sqrt(vx*vx+vy*vy);
+  check_car_s += ((double)prev_size*0.02*check_speed);
+              
+  if (other_car_lane == lane) {
+    //other car is in the same lane
+    other_car_front |= check_car_s > car_s && check_car_s < 30 + car_s;
+  } else if (other_car_lane == lane - 1) { 
+    //other car is in left lane
+    other_car_left |= check_car_s > car_s - 30 && check_car_s < car_s + 30;
+  } else if (other_car_lane == lane + 1) {
+    //other car is in right lane
+    other_car_right |= check_car_s > car_s - 30 && check_car_s < car_s + 30;
+  } else { 
+    
+  }
+}
+
+//Behavior Planner
+void BehaviorPlanner(bool other_car_front,bool other_car_left,bool other_car_right, int& lane, double& ref_vel) 
+{
+  
+  if (other_car_front) { 
+    if (!other_car_left && lane > 0) {
+      lane--;
+    } else if (!other_car_right && lane != 2) {
+      lane++;
+    } else {
+      ref_vel -= 0.5;
+    }
+  } else {
+    if (lane != 1) {
+      if ((lane == 0 && !other_car_right) || (lane == 2 && !other_car_left)) {
+        lane = 1;
+      }
+    } 
+    if (ref_vel < 49.5) {
+      ref_vel += 0.224;
+    }
+  }
+
+}
+
 int main() {
   uWS::Hub h;
 
@@ -260,61 +318,19 @@ int main() {
             
             //find ref_v to use
             for (int i = 0; i < sensor_fusion.size(); i++) {
-              //car in the same lane
-              float d = sensor_fusion[i][6];
-              int other_car_lane = -1;
-
-              if (d > 0 && d<=4) {
-                other_car_lane = 0;
-              } else if (d > 4 && d <=8) { 
-                other_car_lane = 1;
-              } else if (d > 8 && d <= 12) {
-                other_car_lane = 2;
-              } else {
-                continue;
-              }
-              
+                            
               //predict other cars position using car speed
               double vx = sensor_fusion[i][3];
               double vy = sensor_fusion[i][4];
-              double check_speed = sqrt(vx*vx+vy*vy);
               double check_car_s = sensor_fusion[i][5];
-              check_car_s += ((double)prev_size*0.02*check_speed);
-              
-              if (other_car_lane == lane) {
-                //other car is in the same lane
-                other_car_front |= check_car_s > car_s && check_car_s < 30 + car_s;
-              } else if (other_car_lane == lane - 1) { 
-                //other car is in left lane
-                other_car_left |= check_car_s > car_s - 30 && check_car_s < car_s + 30;
-              } else if (other_car_lane == lane + 1) {
-                //other car is in right lane
-                other_car_right |= check_car_s > car_s - 30 && check_car_s < car_s + 30;
-              } else { 
-                continue;
-              }
-            }
+              float d = sensor_fusion[i][6];
 
+              Prediction(lane, car_s, prev_size, d, vx, vy, check_car_s, other_car_front, other_car_left, other_car_right);
+
+            }
 
             //Behavior planning
-            if (other_car_front) { 
-              if (!other_car_left && lane > 0) {
-                lane--;
-              } else if (!other_car_right && lane != 2) {
-                lane++;
-              } else {
-                ref_vel -= 0.5;
-              }
-            } else {
-              if (lane != 1) {
-                if ((lane == 0 && !other_car_right) || (lane == 2 && !other_car_left)) {
-                  lane = 1;
-                }
-              } 
-              if (ref_vel < 49.5) {
-              ref_vel += 0.224;
-              }
-            }
+	    BehaviorPlanner(other_car_front, other_car_left, other_car_right, lane, ref_vel);
                
             
             //create xy list for spline

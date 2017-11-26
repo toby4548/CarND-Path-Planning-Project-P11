@@ -1,6 +1,18 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
-   
+
+###Reflection
+The overall process of behavior planning is shown as the following figure.
+
+![image](./image/behavior_planning_preocess.png)
+
+The prediction is done with the prediction function in [line 169 to 199 in main.cpp](./src/main.cpp#L169) which take the information from sensor fusion as input. The future position of the other vehicle is then estimated using the speed. We compare the position of the other vehicle with the ego vehicle's position to check if there is car in front, at left or at right of us. Then we pass these information to the behavior planner.
+
+The behavior planning is done in the function in [line 201 to 224 in main.cpp](./src/main.cpp#L201). Based on the information from the prediction part, 
+the car will decide to speed up/ slow down or change lane.
+
+The tragectory of the ego vehicle is generated in [line 336 to 442 in main.cpp](./src/main.cpp#L336) using the speed and lane information from the behavior planner. At first, the last two point from the previous path are used to generate path which is tangent to previous path's end point. Then three point evenly 30m spaced point are generated depends on the lane. A tranformation to ego vehicle's coordinate is also used to make the calculation easier. We use the spline function to calculate the trajectory and transform it back to the global coordinate. 
+
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases).
 
