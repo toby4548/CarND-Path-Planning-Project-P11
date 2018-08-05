@@ -8,8 +8,7 @@
 
 using namespace std;
 
-void SensorFusion::Prediction(int lane, double car_s,int prev_size, float d, double vx, double vy, double check_car_s, bool& other_car_front, bool& other_car_left, bool& other_car_right)
-{
+void SensorFusion::Prediction(int lane, double car_s,int prev_size, float d, double vx, double vy, double check_car_s, bool& other_car_front, bool& other_car_left, bool& other_car_right) {
   int other_car_lane = -1;
 
   if (d > 0 && d<=4) {
