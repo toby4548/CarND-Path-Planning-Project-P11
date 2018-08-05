@@ -10,7 +10,6 @@ class BehaviorPlanner {
 public:
   // planning vehicle behavior
   void plan(bool other_car_front,bool other_car_left,bool other_car_right, int& lane, double& ref_vel);
-
 };
 
 
