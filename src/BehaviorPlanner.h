@@ -6,10 +6,14 @@
 #define PATH_PLANNING_BEHAVIORPLANNER_H
 
 
+#include "SensorFusion.h"
+
 class BehaviorPlanner {
 public:
   // planning vehicle behavior
-  void plan(bool other_car_front,bool other_car_left,bool other_car_right, int& lane, double& ref_vel);
+  double my_speed_ = 0; //target speed
+
+  void plan(SensorFusion &fusion);
 };
 
 

@@ -7,23 +7,23 @@
 
 using namespace std;
 
-void BehaviorPlanner::plan(bool other_car_front,bool other_car_left,bool other_car_right, int& lane, double& ref_vel) {
-  if (other_car_front) {
-    if (!other_car_left && lane > 0) {
-      lane--;
-    } else if (!other_car_right && lane != 2) {
-      lane++;
+void BehaviorPlanner::plan(SensorFusion &fusion) {
+  if (fusion.other_car_front_) {
+    if (!fusion.other_car_left_ && fusion.my_lane_ > 0) {
+      fusion.my_lane_--;
+    } else if (!fusion.other_car_right_ && fusion.my_lane_ != 2) {
+      fusion.my_lane_++;
     } else {
-      ref_vel -= 0.5;
+      my_speed_ -= 0.5;
     }
   } else {
-    if (lane != 1) {
-      if ((lane == 0 && !other_car_right) || (lane == 2 && !other_car_left)) {
-        lane = 1;
+    if (fusion.my_lane_ != 1) {
+      if ((fusion.my_lane_ == 0 && !fusion.other_car_right_) || (fusion.my_lane_ == 2 && !fusion.other_car_left_)) {
+        fusion.my_lane_ = 1;
       }
     }
-    if (ref_vel < 49.5) {
-      ref_vel += 0.224;
+    if (my_speed_ < 49.5) {
+      my_speed_ += 0.224;
     }
   }
 }

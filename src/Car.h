@@ -18,6 +18,9 @@ public:
   double s_;                      // s in frenet
   double d_;                      // d in frenet
 
+  // constructure initialize a car with parameters from the simulator
+  Car(int id, double x, double y, double vx, double vy, double s, double d);
+
 };
 
 

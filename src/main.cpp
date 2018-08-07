@@ -55,14 +55,11 @@ int main() {
     map_waypoints_dy.push_back(d_y);
   }
 
-  //start at lane 1
-  int lane = 1;
+  SensorFusion highway_fusion;
 
-  //target speed
-  double ref_vel = 0;
+  BehaviorPlanner highway_planner;
 
-
-  h.onMessage([&lane,&ref_vel,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&highway_fusion,&highway_planner,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -103,13 +100,6 @@ int main() {
             if(prev_size>0) {
               car_s = end_path_s;
             }
-
-            bool too_close = false;
-            
-            //check car driving around
-            bool other_car_front = false;
-            bool other_car_left = false;
-            bool other_car_right = false;
             
             //find ref_v to use
             for (int i = 0; i < sensor_fusion.size(); i++) {
@@ -120,15 +110,13 @@ int main() {
               double check_car_s = sensor_fusion[i][5];
               float d = sensor_fusion[i][6];
 
-              SensorFusion s;
-              s.Prediction(lane, car_s, prev_size, d, vx, vy, check_car_s, other_car_front, other_car_left, other_car_right);
+
+              highway_fusion.Prediction(car_s, prev_size, d, vx, vy, check_car_s);
 
             }
 
             //Behavior planning
-            //BehaviorPlanner b;
-            BehaviorPlanner b;
-	          b.plan(other_car_front, other_car_left, other_car_right, lane, ref_vel);
+	          highway_planner.plan(highway_fusion);
                
             
             //create xy list for spline
@@ -169,9 +157,9 @@ int main() {
             }
 
             //Add evenly 30m spaced points ahead of the starting reference
-            vector<double> next_wp0 = getXY(car_s + 30, 2 + 4*lane, map_waypoints_s,map_waypoints_x,map_waypoints_y);
-            vector<double> next_wp1 = getXY(car_s + 60, 2 + 4*lane, map_waypoints_s,map_waypoints_x,map_waypoints_y);
-            vector<double> next_wp2 = getXY(car_s + 90, 2 + 4*lane, map_waypoints_s,map_waypoints_x,map_waypoints_y);
+            vector<double> next_wp0 = getXY(car_s + 30, 2 + 4*highway_fusion.my_lane_, map_waypoints_s,map_waypoints_x,map_waypoints_y);
+            vector<double> next_wp1 = getXY(car_s + 60, 2 + 4*highway_fusion.my_lane_, map_waypoints_s,map_waypoints_x,map_waypoints_y);
+            vector<double> next_wp2 = getXY(car_s + 90, 2 + 4*highway_fusion.my_lane_, map_waypoints_s,map_waypoints_x,map_waypoints_y);
    
             ptsx.push_back(next_wp0[0]);
             ptsx.push_back(next_wp1[0]);
@@ -214,7 +202,7 @@ int main() {
 
             //Fill up the rest of our path planner, always output 50 points
             for (int i = 1; i<50 - prev_size; i ++) {
-              double N = (target_dist/(0.02*ref_vel/2.24));
+              double N = (target_dist/(0.02*highway_planner.my_speed_/2.24));
               double x_point = x_add_on + (target_x)/N;
               double y_point = s(x_point);
 
