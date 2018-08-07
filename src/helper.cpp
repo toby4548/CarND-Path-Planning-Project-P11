@@ -8,7 +8,6 @@
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
 // else the empty string "" will be returned.
-
 string hasData(string s) {
   auto found_null = s.find("null");
   auto b1 = s.find_first_of("[");
@@ -20,7 +19,6 @@ string hasData(string s) {
   }
   return "";
 }
-
 
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }

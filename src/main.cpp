@@ -12,6 +12,7 @@
 #include "helper.h"
 #include "SensorFusion.h"
 #include "BehaviorPlanner.h"
+#include "Car.h"
 
 // for convenience
 using namespace std;

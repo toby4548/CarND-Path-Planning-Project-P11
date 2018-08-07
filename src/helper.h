@@ -11,6 +11,9 @@
 
 using namespace std;
 
+const int kInitLane = 1;
+const double kSpeedLimit = 0.44704 * 49;
+
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
 // else the empty string "" will be returned.
