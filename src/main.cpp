@@ -55,11 +55,11 @@ int main() {
     map_waypoints_dy.push_back(d_y);
   }
 
-  SensorFusion highway_fusion;
+
 
   BehaviorPlanner highway_planner;
 
-  h.onMessage([&highway_fusion,&highway_planner,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&highway_planner,&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,&map_waypoints_dx,&map_waypoints_dy](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -100,7 +100,8 @@ int main() {
             if(prev_size>0) {
               car_s = end_path_s;
             }
-            
+
+            SensorFusion highway_fusion;
             //find ref_v to use
             for (int i = 0; i < sensor_fusion.size(); i++) {
                             
